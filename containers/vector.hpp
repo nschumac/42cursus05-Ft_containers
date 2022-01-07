@@ -43,7 +43,7 @@ namespace ft
 
         void reallocate (size_type size)
         {
-            if (size > max_size())
+            if (size > this->max_size())
                 throw std::length_error("size to big");
             pointer tmp = _alloc.allocate(size);
             for (int i = 0; i < this->_size; i++)
@@ -107,17 +107,17 @@ namespace ft
          * Iterators
         */
 
-        iterator begin () {return iterator(this->_vector);}
-        const_iterator cbegin () { return const_iterator(this->_vector); }
+        iterator begin () {return iterator(&this->_vector[0]);}
+        const_iterator begin () const{ return const_iterator(&this->_vector[0]); }
 
         iterator end () {return iterator(&this->_vector[this->_size]);}
-        const_iterator cend () { return const_iterator(&this->_vector[this->_size]); }
+        const_iterator end ()  const { return const_iterator(&this->_vector[this->_size]); }
 
         reverse_iterator rbegin () { return reverse_iterator(&this->_vector[this->_size - 1]); }
-        const_reverse_iterator crbegin () { return const_reverse_iterator(&this->_vector[this->_size - 1]); }
+        const_reverse_iterator rbegin const () { return const_reverse_iterator(&this->_vector[this->_size - 1]); }
 
         reverse_iterator rend () { return reverse_iterator(&this->_vector[-1]); }
-        const_reverse_iterator crend () { return const_reverse_iterator(&this->_vector[-1]); }
+        const_reverse_iterator rend const () { return const_reverse_iterator(&this->_vector[-1]); }
         // Capacity
 
         size_type size () const { return this->_size; }
@@ -184,18 +184,38 @@ namespace ft
 
         const_reference back() const { return this->_vector[_size - 1]; }
 
-
         // Modifiers
 
         template <class InputIterator>
-        void assign (InputIterator first, InputIterator last);
+        void assign (InputIterator first, InputIterator last,
+			typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type = 0)
+		{
+			typename ft::iterator::difference_type dif = first - last;
+			resize(dif);
 
-        void assign (size_type n, const value_type& val);
+			this->_size = dif;
+			for (size_type i = 0; i < this->_size; i++, first++)
+			{
+				this->_vector[i] = *first;
+			}
+		}
+
+        void assign (size_type n, const value_type& val)
+		{
+			size_type dif = n;
+			resize(dif);
+
+			this->_size = dif;
+			for (size_type i = 0; i < this->_size; i++)
+			{
+				this->_vector[i] = val;
+			}
+		}
 
         void push_back (const value_type& val)
         {
             if (_size + 1 > _capacity)
-                reallocate(_capacity <= 0 ? 1 : _capacity * 2);
+                resize(_capacity <= 0 ? 1 : _capacity * 2);
             _alloc.construct(&_vector[_size], val);
             _size++;
         }
@@ -216,78 +236,126 @@ namespace ft
 
         iterator insert (iterator position, const value_type& value)
         {
-            if (this->_size + 1 > this->_capacity)
-                reallocate(this->_size + 1);
+			typename iterator::difference dif = position - this->begin();
+			resize(++this->_size);
 
-            value_type tmp;
-            value_type tmp2;
-            tmp2 = value;
-            iterator ret = position;
-            this->_size++;
-            for (; position != this->end(); position++)
-            {
-                tmp = *position;
-                _alloc.destroy(position.getPointer());
-                _alloc.construct(position.getPointer(), tmp2);
-                tmp2 = tmp;
-            }
-            return ret;
+			value_type tmp1 = value;
+			value_type tmp2;
+			for (; dif < this->_size; dif++)
+			{
+				tmp2 = this->_vector[dif];
+				this->_vector[dif] = tmp1;
+				tmp1 = tmp2;
+			}
+			return &this->_vector[dif]; 
         }
 
         void insert (iterator position, size_type n, const value_type& value)
         {
-            if (this->_size + n > this->_capacity)
-                reallocate(this->_size + n);
-            
-            vector <value_type> tmp;
-			iterator tmpitr = position;
-            this->_size += n;
-            for (size_type count = 0; position != this->end(); position++, count++)
-            {
-                tmp.push_back(*position);
-                _alloc.destroy(position.getPointer());
-				if (count < n)
-                	_alloc.construct(position.getPointer(), value);
-            }
-            for (size_type i = 0; i < tmp.size() && tmpitr != this->end(); i++, tmpitr++)
-            {
-                _alloc.destroy(tmpitr.getPointer());
-                _alloc.construct(tmpitr.getPointer(), tmp[i]);
-            } 
+			typename iterator::difference dif = position - this->begin();
+			resize(this->_size + n);
+
+			_size += n;
+			ft::vector<value_type> buf;
+			for (size_type count = dif; count < this->_size; count++)
+				buf.push_back(this->_vector[count]);
+			for (; dif < n; dif++)
+				this->_vector[dif] = value;
+			for (size_type count = 0; count < buf.size(); dif++, count++)
+				this->_vector[dif] = buf[count];
         }
 
         template < class InputIterator >
-            void insert (iterator position, InputIterator first, InputIterator last,
-                    typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type = 0)
-            {
-                size_type n = last - first;
+		void insert (iterator position, InputIterator first, InputIterator last,
+				typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type = 0)
+		{
+			typename iterator::difference dif = position - this->begin();
+			typename iterator::difference n = last - first;
+			resize(this->_size + n);
 
-                if (this->_size + n > this->_capacity)
-                    reallocate(this->_size + n);
-                
-                vector <value_type> tmp;
-                this->_size += n;
-                std::cout << "here" << std::endl;
-                for (;first != last  && position != this->end(); position++, first++)
-                {
-                    tmp.push_back(*position);
-                    _alloc.destroy(position.getPointer());
-                    _alloc.construct(position.getPointer(), *first);
-                }
-                for (size_type i = 0; i < tmp.size() && position != this->end(); i++, position++)
-                {
-                    _alloc.destroy(position.getPointer());
-                    _alloc.construct(position.getPointer(), tmp[i]);
-                } 
+			_size += n;
+			ft::vector<value_type> buf;
+			for (size_type count = dif; count < this->_size; count++)
+				buf.push_back(this->_vector[count]);
+			for (; first != last; dif++, first++)
+				this->_vector[dif] = *first;
+			for (size_type count = 0; count < buf.size(); dif++, count++)
+				this->_vector[dif] = buf[count];
+		}
 
-                
-            }
+		iterator erase (iterator position)
+		{
+			for (iterator cop = position; cop != this->end(); cop++)
+			{
+				if (cop + 1 != this->end())
+					*cop = cop + 1;
+			}
+			this->_size--;
+			return position;
+		}
 
-        
+		iterator erase (iterator first, iterator last)
+		{
+			typename iterator::difference dif = last - first;
+			typename iterator::difference beg_first = first - this->begin();
+			
+			for (iterator it1 = first, iterator it2 = last; it1 != last && it2 != this->end(); it2++)
+				*it1 = *it2;
+			this->_size = _size - dif;
+			return first;
+		}
+
+		void swap (vector& x)
+		{
+			pointer buf = x._vector;
+			size_type sizebuf = x._size;
+			size_type capacitybuf = x.capacitybuf;
+			x._vector = this->_vector;
+			x._size = this->_size;
+			x._capacity = this->_capacity;
+			this->_vector = buf;
+			this->_size = x._size;
+			this->_capacity = capacitybuf;
+		}
 
         allocator_type get_allocator() const { return this->_alloc; }
 
-        vector& operator=(const vector& in);
+
+		// template <class T, class Alloc>
+  		// bool operator== (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
+		// {
+		// 	if (lhs.size() != rhs)
+		// 	  	return false;
+		// 	for (typename lhs::size_type count = 0; count < lhs.size(); count++)
+		// 		if (lhs[count] != rhs[count])
+		// 			return false;
+		// 	return true;
+		// }
+		// template <class T, class Alloc>
+  		// bool operator== (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
+		// {
+		// 	if (lhs.size() == rhs)
+		// 	  	return false;
+		// 	return true;
+		// }
+		// template <class T, class Alloc>
+  		// bool operator== (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs);
+		// template <class T, class Alloc>
+  		// bool operator== (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs);
+		// template <class T, class Alloc>
+  		// bool operator== (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs);
+		// template <class T, class Alloc>
+  		// bool operator== (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs);
+		// template <class T, class Alloc>
+  		// bool operator== (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs);
+
+        vector& operator=(const vector& in)
+		{
+			resize(in.size());
+			iterator cur = this->begin();
+			for (iterator it = in; it != in.end(); it++)
+				*cur = *it;
+		}
 		
 		~vector()
         {

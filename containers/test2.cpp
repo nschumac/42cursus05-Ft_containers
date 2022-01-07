@@ -9,14 +9,17 @@ int main()
     ft::vector<int>::iterator it2 = test.end();
     *it1 = 5;
 
-    test.insert(it1, 5, 50);
-    for (ft::vector<int>::const_iterator itr = test.cbegin(); itr != test.cend(); itr++)
-        std::cout << *itr << std::endl;
-    ft::vector<int> test2(4,5);
+	test.insert(test.begin(), 4);
+//     test.insert(test.begin(), 5, 50);
+// 	std::cout << "test:" ;
+//     for (ft::vector<int>::const_iterator itr = test.begin(); itr != test.end(); itr++)
+//         std::cout << *itr << ",";
+//     ft::vector<int> test2(4,5);
 
-    test2.insert(test2.begin(), test.begin(), test.end());
-    std::cout << test2.size() << std::endl;
-    for (ft::vector<int>::const_iterator itr = test2.cbegin(); itr != test2.cend(); itr++)
-        std::cout << *itr << std::endl;
+// std::cout << "\n";
+//     test2.insert(test2.begin(), test.begin(), test.end());
+// 	std::cout << "test2:" ;
+//     for (ft::vector<int>::const_iterator itr = test2.begin(); itr != test2.end(); itr++)
+//         std::cout << *itr << ",";
     return 0;
 }
