@@ -72,9 +72,9 @@ namespace ft
             bool operator<(vector_iterator const &in) const { return this->_ptr < in._ptr; }
             bool operator>(vector_iterator const &in) const { return this->_ptr > in._ptr; }
 
-            value_type operator*() const { return *this->_ptr; }
+            reference operator*() const { return *this->_ptr; }
             pointer operator->() const { return this->_ptr; }
-            value_type operator[](int i) const { return this->_ptr[i]; }
+            reference operator[](int i) const { return this->_ptr[i]; }
 
             /*
              * Operator
