@@ -5,6 +5,7 @@
 
 
 #include "../extras/choose.hpp"
+#include "vector_iterator.hpp"
 
 namespace ft
 {
@@ -30,8 +31,8 @@ namespace ft
              */
 
             reverse_vector_iterator (pointer ptr = 0) : _ptr(ptr) {}
-            reverse_vector_iterator (reverse_vector_iterator const &in) : _ptr(in._ptr) {}
-
+			reverse_vector_iterator (const reverse_vector_iterator<T, false> & in) : _ptr(in.getPointer()) {}
+			explicit reverse_vector_iterator(const vector_iterator<T, false> & in) : _ptr(in.getPointer() - 1) {}
             ~reverse_vector_iterator () {}
 
             /*

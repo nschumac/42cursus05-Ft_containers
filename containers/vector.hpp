@@ -107,8 +107,8 @@ namespace ft
          * Iterators
         */
 
-        iterator begin () {return iterator(&this->_vector[0]);}
-        const_iterator begin () const{ return const_iterator(&this->_vector[0]); }
+        iterator begin () { return iterator(&this->_vector[0]);}
+        const_iterator begin () const { return const_iterator(this->_vector); }
 
         iterator end () {return iterator(&this->_vector[this->_size]);}
         const_iterator end ()  const { return const_iterator(&this->_vector[this->_size]); }
@@ -190,7 +190,7 @@ namespace ft
         void assign (InputIterator first, InputIterator last,
 			typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type = 0)
 		{
-			typename ft::iterator::difference_type dif = first - last;
+			typename iterator::difference_type dif = first - last;
 			resize(dif);
 
 			this->_size = dif;
@@ -294,16 +294,16 @@ namespace ft
 			return position;
 		}
 
-		iterator erase (iterator first, iterator last)
-		{
-			typename iterator::difference dif = last - first;
-			typename iterator::difference beg_first = first - this->begin();
+		// iterator erase (iterator first, iterator last)
+		// {
+		// 	typename iterator::difference dif = last - first;
+		// 	typename iterator::difference beg_first = first - this->begin();
 			
-			for (iterator it1 = first, iterator it2 = last; it1 != last && it2 != this->end(); it2++)
-				*it1 = *it2;
-			this->_size = _size - dif;
-			return first;
-		}
+		// 	for (iterator it1 = first, iterator it2 = last; it1 != last && it2 != this->end(); it2++, it1++)
+		// 		*it1 = *it2;
+		// 	this->_size = _size - dif;
+		// 	return first;
+		// }
 
 		void swap (vector& x)
 		{

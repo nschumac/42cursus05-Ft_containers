@@ -28,7 +28,7 @@ namespace ft
              */
 
             vector_iterator (pointer ptr = 0) : _ptr(ptr) {}
-            vector_iterator (vector_iterator const &in) : _ptr(in._ptr) {}
+			vector_iterator (const vector_iterator<T, false>& in) : _ptr(in.getPointer()) {}
 
             ~vector_iterator () {}
 
