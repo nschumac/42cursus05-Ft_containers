@@ -187,7 +187,7 @@ namespace ft
         // Modifiers
 
         template <class InputIterator>
-            void assign (InputIterator first, InputIterator last);
+        void assign (InputIterator first, InputIterator last);
 
         void assign (size_type n, const value_type& val);
 
@@ -239,26 +239,28 @@ namespace ft
                 reallocate(this->_size + n);
             
             vector <value_type> tmp;
+			iterator tmpitr = position;
             this->_size += n;
-            for (size_type count = 0; count < n && position != this->end(); position++, count++)
+            for (size_type count = 0; position != this->end(); position++, count++)
             {
                 tmp.push_back(*position);
                 _alloc.destroy(position.getPointer());
-                _alloc.construct(position.getPointer(), value);
+				if (count < n)
+                	_alloc.construct(position.getPointer(), value);
             }
-            for (size_type i = 0; i < tmp.size() && position != this->end(); i++, position++)
+            for (size_type i = 0; i < tmp.size() && tmpitr != this->end(); i++, tmpitr++)
             {
-                _alloc.destroy(position.getPointer());
-                _alloc.construct(position.getPointer(), tmp[i]);
+                _alloc.destroy(tmpitr.getPointer());
+                _alloc.construct(tmpitr.getPointer(), tmp[i]);
             } 
         }
 
         template < class InputIterator >
-            void insert (iterator position, InputIterator first, InputIterator last,
-                    typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type = 0)
-            {
+		void insert (iterator position, InputIterator first, InputIterator last,
+				typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type = 0)
+		{
 
-            }
+		}
 
         
 
