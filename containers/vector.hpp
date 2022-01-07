@@ -1,6 +1,7 @@
 #ifndef VECTOR_HPP
 # define VECTOR_HPP
 
+#include <iostream>
 #include <memory>
 #include <algorithm>
 #include <cstddef>
@@ -248,6 +249,7 @@ namespace ft
             }
             for (size_type i = 0; i < tmp.size() && position != this->end(); i++, position++)
             {
+                std::cout << *position.getPointer() << std::endl;
                 _alloc.destroy(position.getPointer());
                 _alloc.construct(position.getPointer(), tmp[i]);
             } 
@@ -257,7 +259,27 @@ namespace ft
             void insert (iterator position, InputIterator first, InputIterator last,
                     typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type = 0)
             {
+                size_type n = last - first;
 
+                if (this->_size + n > this->_capacity)
+                    reallocate(this->_size + n);
+                
+                vector <value_type> tmp;
+                this->_size += n;
+                std::cout << "here" << std::endl;
+                for (;first != last  && position != this->end(); position++, first++)
+                {
+                    tmp.push_back(*position);
+                    _alloc.destroy(position.getPointer());
+                    _alloc.construct(position.getPointer(), *first);
+                }
+                for (size_type i = 0; i < tmp.size() && position != this->end(); i++, position++)
+                {
+                    _alloc.destroy(position.getPointer());
+                    _alloc.construct(position.getPointer(), tmp[i]);
+                } 
+
+                
             }
 
         
