@@ -1,6 +1,9 @@
 #ifndef REDBLACKTREE_HPP
 # define REDBLACKTREE_HPP
 
+#include "../iterators/map_iterator.hpp"
+#include "../extras/pair.hpp"
+#include "../iterators/reverse_iterator.hpp"
 
 namespace ft
 {
@@ -42,19 +45,11 @@ namespace ft
 				this->color = color;
 			}
 
-			node (node const & in)
+			node (node const & in) : value(in.value), parent(in.parent)
 			{
-				*this = in;
-			}
-
-			node & operator= (node const & in)
-			{
-				this->value = in.value;
-				this->parent = in.parent;
 				this->child[0] = in.child[0];
 				this->child[1] = in.child[1];
 				this->color = in.color;
-				return *this;
 			}
 
 			int childAmount() const
@@ -74,8 +69,10 @@ namespace ft
 	{
 		public:
 
-		//	typedef map_iterator<T>									iterator;
-		//	typedef map_iterator<const T>							const_iterator;
+			typedef map_iterator<node<T> >							iterator;
+			typedef map_iterator<node<T> >					const_iterator;
+			typedef ft::reverse_iterator<iterator>					reverse_iterator;
+			typedef ft::reverse_iterator<const_iterator>			const_reverse_iterator;
 
 			typedef Alloc											allocator_type;
 			typedef typename Alloc::template rebind<node<T> >::other	node_allocator_type;
@@ -88,6 +85,21 @@ namespace ft
 			node_allocator_type	_nodealloc;
 			node_type			*_root;
 			compare_type		_keyComp;
+
+		protected:
+
+			node_type			_tree;
+		
+		private:
+
+			void changeRoot(node<T> *newroot)
+			{
+				this->_root = newroot;
+				if (newroot == nullptr)
+					return ;
+				this->_root->parent = &_tree;
+				this->_tree.child[0] = _root;
+			}
 
 			/*
 			** prints tree in a form
@@ -118,7 +130,7 @@ namespace ft
 				while (true)
 				{
 					// found element
-					if (p == cur->value)
+					if (p.first == cur->value.first)
 						return cur;
 					else if (_keyComp(p, cur->value))
 						dir = false;
@@ -154,7 +166,6 @@ namespace ft
 			{
 				allocator_type alloc(this->_nodealloc);
 				alloc.destroy(&node->value);
-				this->_nodealloc.deallocate(node);
 			}
 
 			/*
@@ -174,10 +185,10 @@ namespace ft
 				s->child[dir] = p;
 				p->parent = s;
 				s->parent = g;
-				if (g != nullptr)
+				if (g != nullptr && g != &this->_tree)
 					g->child[p == g->child[0] ? 0 : 1] = s;
 				else
-					this->_root = s;
+					changeRoot(s);
 			}
 
 			/*
@@ -200,7 +211,7 @@ namespace ft
 					*/
 
 					node<T> *g = p->parent;
-					if (!g)
+					if (!g || g == &this->_tree)
 					{
 						/*
 						** grandpa doesnt exist p is root
@@ -256,7 +267,7 @@ namespace ft
 					** Iterate to next red level
 					*/
 					cur = g;
-				} while (cur->parent != nullptr);
+				} while (cur->parent != &this->_tree);
 				/*
 				** set root BLACK
 				*/
@@ -277,12 +288,25 @@ namespace ft
 			}
 
 			/*
+			** finds successor of a certain node
+			** successor is the smallest node that is bigger than current node
+			** ONLY CALL WITH NODE THAT HAS CHILD
+			*/
+			node<T> *findPredicessor(node<T> *node)
+			{
+				node = node->child[0];
+				while (node->child[1])
+					node = node->child[1];
+				return node;
+			}
+
+			/*
 			** shifts node n2 into positon of n1
 			*/
 			void shift(node<T> *n1, node<T> *n2)
 			{
-				if (n1->parent == nullptr)
-					this->_root = n2;
+				if (n1->parent == &this->_tree)
+					changeRoot(n2);
 				else if (n1 == n1->parent->child[0])
 					n1->parent->child[0] = n2;
 				else
@@ -324,7 +348,7 @@ namespace ft
 					*/
 					s->color = RED;
 					cur = p;
-					if (!cur->parent)
+					if (!cur->parent || cur->parent == &this->_tree)
 						return ;
 					p = cur->parent;
 					dir = GETDIR(cur);
@@ -334,14 +358,14 @@ namespace ft
 				** if parent is red 
 				** compensate by setting sibling to parent to black
 				*/
-				if (ISRED(p))
+				if (ISRED(p) && ISBLACK(s) && ISBLACK(c) && ISBLACK(d))
 				{
 					s->color = RED;
 					p->color = BLACK;
 					return;
 				}
 
-				if (ISRED(s) && ISBLACK(c) && ISBLACK(d))
+				if (ISRED(s) && ISBLACK(c) && ISBLACK(d) && ISBLACK(p))
 				{
 					rotate(p, dir);
 					p->color = RED;
@@ -349,10 +373,11 @@ namespace ft
 					s = c;
 					d = s->child[1 - dir];
 					c = s->child[dir];
-					if (!ISRED(d) && !ISRED(c))
+					if (ISBLACK(d) && ISBLACK(c))
 					{
 						s->color = RED;
 						p->color = BLACK;
+						return ;
 					}
 				}
 
@@ -376,11 +401,65 @@ namespace ft
 
 
 			/*
+			** switches two nodes
+			** color , children, parents, ...
+			*/
+			void switch_node(node<T> *n1, node<T> *n2)
+			{
+				node<T> tmp = *n1;
+				bool isroot = (n1 == this->_root);
+				int dir1 = GETDIR(n1);
+				int dir2 = GETDIR(n2);
+
+				if (n2->parent == n1)
+				{
+					n1->parent = n2;
+					n1->child[0] = n2->child[0];
+					if (n1->child[0] != nullptr)
+						n1->child[0]->parent = n1;
+					n1->child[1] = n2->child[1];
+					if (n1->child[1] != nullptr)
+						n1->child[1]->parent = n1;
+					n1->color = n2->color;
+
+					n2->parent = tmp.parent;
+					n2->parent->child[dir1] = n2;
+					n2->child[dir2] = n1;
+					n2->child[1 - dir2] = tmp.child[1 - dir2];
+					n2->child[1 - dir2]->parent = n2;
+					n2->color = tmp.color;
+
+				}
+				else
+				{
+					n1->parent = n2->parent;
+					n1->parent->child[dir2] = n1;
+					n1->child[0] = n2->child[0];
+					if (n1->child[0] != nullptr)
+						n1->child[0]->parent = n1;
+					n1->child[1] = n2->child[1];
+					if (n1->child[1] != nullptr)
+						n1->child[1]->parent = n1;
+					n1->color = n2->color;
+
+					n2->parent = tmp.parent;
+					n2->parent->child[dir1] = n2;
+					n2->child[0] = tmp.child[0];
+					n2->child[0]->parent = n2;
+					n2->child[1] = tmp.child[1];
+					n2->child[1]->parent = n2;
+					n2->color = tmp.color;
+				}
+				if (isroot)
+					changeRoot(n2);
+			}
+
+			/*
 			** romoves node from tree
 			*/
 			void remove_node(node<T> *cur)
 			{
-				if (cur->parent != nullptr && ISBLACK(cur) && cur->childAmount() == 0)
+				if (cur->parent != &this->_tree && ISBLACK(cur) && cur->childAmount() == 0)
 				{
 					complex_removal(cur);
 					return ;
@@ -389,8 +468,11 @@ namespace ft
 				/*
 				** if node is root and only node in tree
 				*/
-				if (cur->parent == nullptr && cur->childAmount() == 0)
+				if (cur->parent == &this->_tree && cur->childAmount() == 0)
+				{
+					shift(cur, nullptr);
 					return ;
+				}
 
 				/*
 				** node has two children
@@ -398,11 +480,13 @@ namespace ft
 				*/
 				if (cur->hasTwoChild())
 				{
-					node<T> *successor = findSuccessor();
-					T tmp = successor->value;
-					successor->value = cur->value;
-					cur->value = tmp;
-					cur = successor;
+					node<T> *successor = findSuccessor(cur);
+					switch_node(cur, successor);
+					if (cur->parent != nullptr && ISBLACK(cur) && cur->childAmount() == 0)
+					{
+						complex_removal(cur);
+						return ;
+					}
 				}
 				/*
 				** node now has one child or non
@@ -411,17 +495,18 @@ namespace ft
 				** if black it has one
 				*/
 
-				if (ISRED(cur))
+				if (cur->childAmount() == 0)
 				{
 					shift(cur, nullptr);
 					return ;
 				}
 
 				/*
-				** node is black and must have one child
+				** node is black and must have one RED child
+				** or no child at all
 				*/
 				int child = 0;
-				if (cur->child[1])
+				if (cur->child[child] == nullptr)
 					child = 1;
 				/*
 				** shift child up to correct position
@@ -438,7 +523,14 @@ namespace ft
 		public:
 
 			explicit tree (Compare keyComp = Compare(), Alloc alloc = Alloc())
-				: _nodealloc(alloc), _root(nullptr), _keyComp(keyComp)  {}
+				: _nodealloc(alloc), _root(nullptr), _keyComp(keyComp) 
+				{
+					this->_tree.parent = nullptr;
+					this->_tree.child[0] = &this->_tree;
+					this->_tree.child[1] = nullptr;
+					this->_tree.color = BLACK;
+				}
+			
 
 			tree (T p, Compare keyComp = Compare(), Alloc alloc = Alloc())
 				: _nodealloc(alloc), _root(nullptr), _keyComp(keyComp)
@@ -446,21 +538,37 @@ namespace ft
 				insert(p);
 			}
 
-			void	insert(T const & p)
+			tree &operator=(tree const &in)
+			{
+				this->_root = in._root;
+				this->_nodealloc = in._nodealloc;
+				this->_keyComp = in._keyComp;
+				this->_tree = in._tree;
+				return *this;
+			}
+
+			ft::pair<iterator, bool> insert(T const & p)
 			{
 				node<T>	*pos = find(p);
 				node<T> *newnode = createNode(p);
+
+				/*
+				** nothing in tree
+				*/
 				if (pos == nullptr)
-					this->_root = newnode;
+					changeRoot(newnode);
 				else
 				{
+					if (pos->value.first == p.first)
+						return ft::make_pair(iterator(newnode), false);
 					pos->child[!_keyComp(p, pos->value)] = newnode;
 					newnode->parent = pos;
 				}
 				fix_treeInsert(newnode);
+				return ft::make_pair(iterator(newnode), true);
 			}
 
-			bool	remove(T const &p)
+			bool	remove(T const p)
 			{
 				/*
 				** finds either the node or the parent of where it would be
@@ -468,11 +576,44 @@ namespace ft
 				*/
 				node<T> *pos = find(p);
 
-				if (pos == nullptr || pos->value != p)
+				if (pos == nullptr || pos->value.first != p.first)
 					return false;
 				remove_node(pos);
 				destroyNode(pos);
 				return true;
+			}
+
+			node<T> *begin()
+			{
+				node<T> *cur = this->_root;
+				while (cur != nullptr && cur->child[0])
+					cur = cur->child[0];
+				return cur;
+			}
+
+			node<T> *end()
+			{
+				return &this->_tree;
+			}
+
+			void clear()
+			{
+				while (_root != nullptr)
+					remove_node(_root);
+			}
+
+			node<T> *lower_bound(const T& in)
+			{
+				return find(in);
+			}
+
+			node<T> *realfind (const T& in)
+			{
+				node<T> *tmp = find(in);
+
+				if (tmp->value.first != in.first)
+					return end();
+				return tmp;
 			}
 
 			void printTree()
@@ -481,12 +622,6 @@ namespace ft
 			}
 
 	};
-	
-
-
 }
-
-
-
 
 #endif

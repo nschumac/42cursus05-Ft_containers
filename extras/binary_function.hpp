@@ -9,7 +9,7 @@ namespace ft
 	{
 		typedef Arg1			first_argument_type;
 		typedef Arg2			second_argument_type;
-		typedef Result		result_type;
+		typedef Result			result_type;
 	};
 
 
