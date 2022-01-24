@@ -29,7 +29,7 @@ namespace ft
 
 			pair& operator= (const pair& pr)
 			{
-				//this->first = pr.first;
+				this->first = pr.first;
 				this->second = pr.second;
 				return *this;
 			}
@@ -65,7 +65,6 @@ namespace ft
 				return !(lhs<rhs);
 			}
 	};
-
 
 	template <class T1, class T2>
 	ft::pair<T1, T2> make_pair(T1 x1, T2 x2)

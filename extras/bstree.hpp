@@ -64,31 +64,28 @@ namespace ft
 	};
 
 
-	template <class T, class Compare, class Alloc>
+	template <class T, class Compare, class Alloc = std::allocator<T> >
 	class tree
 	{
 		public:
 
-			typedef map_iterator<node<T> >							iterator;
-			typedef map_iterator<node<T> >					const_iterator;
-			typedef ft::reverse_iterator<iterator>					reverse_iterator;
-			typedef ft::reverse_iterator<const_iterator>			const_reverse_iterator;
+			typedef map_iterator<node<T> >								iterator;
+			typedef map_iterator<node<T>, const T*, const T& >			const_iterator;
+			typedef ft::reverse_iterator<iterator>						reverse_iterator;
+			typedef ft::reverse_iterator<const_iterator>				const_reverse_iterator;
 
-			typedef Alloc											allocator_type;
+			typedef Alloc												allocator_type;
 			typedef typename Alloc::template rebind<node<T> >::other	node_allocator_type;
 
-			typedef Compare											compare_type;
-			typedef node<T>											node_type;
+			typedef Compare												compare_type;
+			typedef node<T>												node_type;
 
 		private:
 
 			node_allocator_type	_nodealloc;
 			node_type			*_root;
 			compare_type		_keyComp;
-
-		protected:
-
-			node_type			_tree;
+			node_type			*_tree;
 		
 		private:
 
@@ -97,8 +94,8 @@ namespace ft
 				this->_root = newroot;
 				if (newroot == nullptr)
 					return ;
-				this->_root->parent = &_tree;
-				this->_tree.child[0] = _root;
+				this->_root->parent = _tree;
+				this->_tree->child[0] = _root;
 			}
 
 			/*
@@ -117,11 +114,11 @@ namespace ft
 			}
 
 			/*
-			** Searches for Element value
-			** if it cannot find element it returns the parent of the position
-			** returns nullptr if tree has no elements
+			** Searches for correct element position in the tree
+			** call only when 100% sure elemnt is not in tree
+			** this function doesnt check that
 			*/
-			node<T>	*find(T const &p)
+			node<T>	*newfind(T const &p)
 			{
 				node<T>	*cur = this->_root;
 				bool	dir;
@@ -129,15 +126,10 @@ namespace ft
 					return nullptr;
 				while (true)
 				{
-					// found element
-					if (p.first == cur->value.first)
-						return cur;
-					else if (_keyComp(p, cur->value))
+					if (_keyComp(p, cur->value))
 						dir = false;
 					else
 						dir = true;
-					// element doesnt exist yet
-					// returns parent here
 					if (cur->child[dir] == nullptr)
 						return cur;
 					cur = cur->child[dir];
@@ -166,6 +158,7 @@ namespace ft
 			{
 				allocator_type alloc(this->_nodealloc);
 				alloc.destroy(&node->value);
+				_nodealloc.deallocate(node, 1);
 			}
 
 			/*
@@ -185,7 +178,7 @@ namespace ft
 				s->child[dir] = p;
 				p->parent = s;
 				s->parent = g;
-				if (g != nullptr && g != &this->_tree)
+				if (g != nullptr && g != this->_tree)
 					g->child[p == g->child[0] ? 0 : 1] = s;
 				else
 					changeRoot(s);
@@ -211,7 +204,7 @@ namespace ft
 					*/
 
 					node<T> *g = p->parent;
-					if (!g || g == &this->_tree)
+					if (!g || g == this->_tree)
 					{
 						/*
 						** grandpa doesnt exist p is root
@@ -267,7 +260,7 @@ namespace ft
 					** Iterate to next red level
 					*/
 					cur = g;
-				} while (cur->parent != &this->_tree);
+				} while (cur->parent != this->_tree);
 				/*
 				** set root BLACK
 				*/
@@ -305,7 +298,7 @@ namespace ft
 			*/
 			void shift(node<T> *n1, node<T> *n2)
 			{
-				if (n1->parent == &this->_tree)
+				if (n1->parent == this->_tree)
 					changeRoot(n2);
 				else if (n1 == n1->parent->child[0])
 					n1->parent->child[0] = n2;
@@ -348,7 +341,7 @@ namespace ft
 					*/
 					s->color = RED;
 					cur = p;
-					if (!cur->parent || cur->parent == &this->_tree)
+					if (!cur->parent || cur->parent == this->_tree)
 						return ;
 					p = cur->parent;
 					dir = GETDIR(cur);
@@ -459,7 +452,7 @@ namespace ft
 			*/
 			void remove_node(node<T> *cur)
 			{
-				if (cur->parent != &this->_tree && ISBLACK(cur) && cur->childAmount() == 0)
+				if (cur->parent != this->_tree && ISBLACK(cur) && cur->childAmount() == 0)
 				{
 					complex_removal(cur);
 					return ;
@@ -468,7 +461,7 @@ namespace ft
 				/*
 				** if node is root and only node in tree
 				*/
-				if (cur->parent == &this->_tree && cur->childAmount() == 0)
+				if (cur->parent == this->_tree && cur->childAmount() == 0)
 				{
 					shift(cur, nullptr);
 					return ;
@@ -525,10 +518,11 @@ namespace ft
 			explicit tree (Compare keyComp = Compare(), Alloc alloc = Alloc())
 				: _nodealloc(alloc), _root(nullptr), _keyComp(keyComp) 
 				{
-					this->_tree.parent = nullptr;
-					this->_tree.child[0] = &this->_tree;
-					this->_tree.child[1] = nullptr;
-					this->_tree.color = BLACK;
+					this->_tree = _nodealloc.allocate(1);
+					this->_tree->parent = nullptr;
+					this->_tree->child[0] = this->_tree;
+					this->_tree->child[1] = nullptr;
+					this->_tree->color = BLACK;
 				}
 			
 
@@ -536,6 +530,10 @@ namespace ft
 				: _nodealloc(alloc), _root(nullptr), _keyComp(keyComp)
 			{
 				insert(p);
+			}
+
+			tree (const tree& in) : _nodealloc(in._nodealloc), _root(in._root), _keyComp(in._keyComp), _tree(in._tree)
+			{
 			}
 
 			tree &operator=(tree const &in)
@@ -549,7 +547,7 @@ namespace ft
 
 			ft::pair<iterator, bool> insert(T const & p)
 			{
-				node<T>	*pos = find(p);
+				node<T>	*pos = newfind(p);
 				node<T> *newnode = createNode(p);
 
 				/*
@@ -559,8 +557,6 @@ namespace ft
 					changeRoot(newnode);
 				else
 				{
-					if (pos->value.first == p.first)
-						return ft::make_pair(iterator(newnode), false);
 					pos->child[!_keyComp(p, pos->value)] = newnode;
 					newnode->parent = pos;
 				}
@@ -568,33 +564,24 @@ namespace ft
 				return ft::make_pair(iterator(newnode), true);
 			}
 
-			bool	remove(T const p)
+			bool remove (node<T> *pos)
 			{
-				/*
-				** finds either the node or the parent of where it would be
-				** if nullptr is returned it means there are no nodes
-				*/
-				node<T> *pos = find(p);
-
-				if (pos == nullptr || pos->value.first != p.first)
-					return false;
 				remove_node(pos);
 				destroyNode(pos);
 				return true;
 			}
 
-			node<T> *begin()
+			node_type *begin() const
 			{
 				node<T> *cur = this->_root;
 				while (cur != nullptr && cur->child[0])
 					cur = cur->child[0];
+				if (cur == nullptr)
+					return end();
 				return cur;
 			}
 
-			node<T> *end()
-			{
-				return &this->_tree;
-			}
+			node_type *end() const { return this->_tree; }
 
 			void clear()
 			{
@@ -602,19 +589,7 @@ namespace ft
 					remove_node(_root);
 			}
 
-			node<T> *lower_bound(const T& in)
-			{
-				return find(in);
-			}
-
-			node<T> *realfind (const T& in)
-			{
-				node<T> *tmp = find(in);
-
-				if (tmp->value.first != in.first)
-					return end();
-				return tmp;
-			}
+			typename Alloc::size_type max_size() const { return this->_nodealloc.max_size(); }
 
 			void printTree()
 			{

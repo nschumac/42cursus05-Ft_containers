@@ -1,6 +1,5 @@
 #ifdef FT
-
-	#include "../containers/map.hpp"
+#include "../containers/map.hpp"
 	#include "../containers/vector.hpp"
 #else
 	#include <vector>
@@ -27,31 +26,31 @@ int	main(void) {
 	{
 		test[rand() % 50000] = i;
 	}
-	// for (size_t i = 0; i < 20; i++)
-	// {
-	// 	ft::pair<ft::map<int,int>::iterator, ft::map<int, int>::iterator> eq = test.equal_range(rand() % 1234);
-	// 	while (eq.first != eq.second)
-	// 	{
-	// 		std::cout << eq.first->first << endl;
-	// 		eq.first++;
-	// 	}
-	// 	// std::cout << eq.first->first << endl;
-	// }
+	for (size_t i = 0; i < 20; i++)
+	{
+		ft::pair<ft::map<int,int>::iterator, ft::map<int, int>::iterator> eq = test.equal_range(rand() % 1234);
+		while (eq.first != eq.second)
+		{
+			std::cout << eq.first->first << endl;
+			eq.first++;
+		}
+		// std::cout << eq.first->first << endl;
+	}
 	
 
-	// std::cout << "begin: " << test.begin()->first << endl;
-	// for (size_t i = 0; i < 40; i++)
-	// {
-	// 	if (test.upper_bound(i) != test.end()) {
-	// 		if (test.upper_bound(i)->first == 10)
-	// 			std::cerr << "upper_bound i: " << i << endl;
-	// 		cout << test.upper_bound(i)->first << endl;
-	// 	}
-	// 	if (test.lower_bound(i) != test.end())
-	// 		if (test.lower_bound(i)->first == 10)
-	// 			std::cerr << "lower_bound i: " << i << endl;
-	// 		cout << test.lower_bound(i)->first << endl;
-	// }
+	std::cout << "begin: " << test.begin()->first << endl;
+	for (size_t i = 0; i < 40; i++)
+	{
+		if (test.upper_bound(i) != test.end()) {
+			if (test.upper_bound(i)->first == 10)
+				std::cerr << "upper_bound i: " << i << endl;
+			cout << test.upper_bound(i)->first << endl;
+		}
+		if (test.lower_bound(i) != test.end())
+			if (test.lower_bound(i)->first == 10)
+				std::cerr << "lower_bound i: " << i << endl;
+			cout << test.lower_bound(i)->first << endl;
+	}
 	
 	ft::map<int, int>::reverse_iterator rbg = test.rbegin();
 	ft::map<int, int>::reverse_iterator rbe = test.rend();
@@ -61,7 +60,7 @@ int	main(void) {
 		rbg++;
 	}
 	cout << endl;
-	// cout << test.upper_bound(17)->first << endl;
+	cout << test.upper_bound(17)->first << endl;
 	
 	cout << test.empty() << endl;
 	test.insert(ft::pair<const int, int>(10,1));
@@ -408,15 +407,15 @@ int	main(void) {
 	t2.insert(ft::pair<int, int>(152334, 231));
 	t2.insert(ft::pair<int, int>(1234, 231));
 	t2.insert(ft::pair<int, int>(17654, 231));
-	// test.swap(t2);
-	// test.clear();
-	// rb = test.rbegin();
-	// re = test.rend();
-	// while (rb != re)
-	// {
-	// 	std::cout << (*rb).first << endl;
-	// 	rb++;
-	// }
+	test.swap(t2);
+	test.clear();
+	rb = test.rbegin();
+	re = test.rend();
+	while (rb != re)
+	{
+		std::cout << (*rb).first << endl;
+		rb++;
+	}
 	
 	return (0);
 }
