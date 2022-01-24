@@ -1,7 +1,7 @@
 #ifndef REDBLACKTREE_HPP
 # define REDBLACKTREE_HPP
 
-#include "../iterators/map_iterator.hpp"
+#include "../iterators/bst_iterator.hpp"
 #include "../extras/pair.hpp"
 #include "../iterators/reverse_iterator.hpp"
 
@@ -69,8 +69,8 @@ namespace ft
 	{
 		public:
 
-			typedef map_iterator<node<T> >								iterator;
-			typedef map_iterator<node<T>, const T*, const T& >			const_iterator;
+			typedef ft::bst_iterator<node<T> >							iterator;
+			typedef ft::bst_iterator<node<T>, const T*, const T& >		const_iterator;
 			typedef ft::reverse_iterator<iterator>						reverse_iterator;
 			typedef ft::reverse_iterator<const_iterator>				const_reverse_iterator;
 
@@ -112,6 +112,32 @@ namespace ft
 					print(prefix + (isleft ? "│   " : "    "), x->child[1], false);
 				}
 			}
+
+			/*
+			** Searches for correct element position in the tree
+			** will return node pointing to element if it is
+			** found
+			*/
+			node<T>	*_search(T const &p) const
+			{
+				node<T>	*cur = this->_root;
+				bool	dir;
+				if (!cur)
+					return nullptr;
+				while (true)
+				{
+					if (!_keyComp(p, cur->value) && !_keyComp(cur->value, p))
+						return cur;
+					else if (_keyComp(p, cur->value))
+						dir = false;
+					else
+						dir = true;
+					if (cur->child[dir] == nullptr)
+						return cur;
+					cur = cur->child[dir];
+				}
+			}
+
 
 			/*
 			** Searches for correct element position in the tree
@@ -581,6 +607,22 @@ namespace ft
 				return cur;
 			}
 
+			iterator find (const T &p)
+			{
+				node<T> * found = _search(p);
+				if (!found || _keyComp(found->value, p) || _keyComp(p, found->value))
+					return end();
+				return found;
+			}
+	
+			const_iterator find (const T &p) const
+			{
+				node<T> * found = _search(p);
+				if (!found || _keyComp(found->value, p) || _keyComp(p, found->value))
+					return end();
+				return found;
+			}
+
 			node_type *end() const { return this->_tree; }
 
 			void clear()
@@ -589,7 +631,7 @@ namespace ft
 					remove_node(_root);
 			}
 
-			typename Alloc::size_type max_size() const { return this->_nodealloc.max_size(); }
+			typename node_allocator_type::size_type max_size() const { return this->_nodealloc.max_size(); }
 
 			void printTree()
 			{

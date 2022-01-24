@@ -7,11 +7,13 @@
 #include <cstddef>
 #include <string>
 
+
 #include "../extras/pair.hpp"
 #include "../extras/less.hpp"
 #include "../extras/bstree.hpp"
 #include "../extras/swap.hpp"
 #include "../extras/lexicographical_compare.hpp"
+#include "../extras/equal.hpp"
 
 namespace ft
 {
@@ -21,7 +23,7 @@ namespace ft
 	template < class Key,
 	           class T,
 	           class Compare = ft::less<Key>,
-	           class Alloc = std::allocator<ft::pair<const Key,T> > > 
+	           class Alloc = std::allocator<ft::pair<const Key,T> > >
 	class map
 	{
 		public:
@@ -127,14 +129,17 @@ namespace ft
 
 			size_type size () const { return _size; }
 
-			size_type max_size () const { return  _tree.max_size(); }
+			size_type max_size () const
+			{
+				return _tree.max_size();
+			}
 
 			/*		Capacity-Functions		*/
 
 			/*		Observer-Functions		*/
 
 			key_compare	key_comp () const { return _keycomp; }
-			
+
 			value_compare value_comp () const { return value_compare(key_compare()); }
 
 			/*		Observer-Functions		*/
@@ -209,26 +214,12 @@ namespace ft
 
 			iterator find (const key_type& k)
 			{
-				iterator beg = this->begin();
-				while (beg != this->end())
-				{
-					if (beg->first == k)
-						return beg;
-					beg++;
-				}
-				return beg;
+				return _tree.find(ft::make_pair(k, mapped_type()));
 			}
 
 			const_iterator find (const key_type& k) const
 			{
-				const_iterator beg = this->begin();
-				while (beg != this->end())
-				{
-					if (beg->first == k)
-						return beg;
-					beg++;
-				}
-				return beg;
+				return _tree.find(ft::make_pair(k, mapped_type()));
 			}
 
 			size_type count (const key_type& k) const
@@ -279,7 +270,7 @@ namespace ft
 						return beg;
 					beg++;
 				}
-				return beg;	
+				return beg;
 			}
 
 			ft::pair<const_iterator, const_iterator> equal_range(const key_type& k) const
@@ -310,7 +301,7 @@ namespace ft
 			}
 
 			/*		Element-Access-function		*/
-			
+
 			/*		Iterator-Functions		*/
 
 			iterator begin() { return _tree.begin(); }
@@ -325,51 +316,51 @@ namespace ft
 
 			/*		Iterator-Functions		*/
 
-			/*		Relational Operators		*/
-
-			template <class oKey, class U, class Comp, class oAlloc>
-	  		friend bool operator== (const map<oKey, U, Comp, oAlloc>& lhs, const map<oKey, U, Comp, oAlloc>& rhs)
-			{
-				if (lhs.size() != rhs.size())
-				  	return false;
-				for (const_iterator first = lhs.begin(), second = rhs.begin(); first != lhs.end(); first++, second++)
-					if (*first != *second)
-						return false;
-				return true;
-			}
-			template <class oKey, class U, class Comp, class oAlloc>
-	  		friend bool operator!= (const map<oKey, U, Comp, oAlloc>& lhs, const map<oKey, U, Comp, oAlloc>& rhs)
-			{
-				return !(operator==(lhs, rhs));
-			}
-			template <class oKey, class U, class Comp, class oAlloc>
-	  		friend bool operator< (const map<oKey, U, Comp, oAlloc>& lhs, const map<oKey, U, Comp, oAlloc>& rhs)
-			{
-				return ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
-			}
-			template <class oKey, class U, class Comp, class oAlloc>
-	  		friend bool operator> (const map<oKey, U, Comp, oAlloc>& lhs, const map<oKey, U, Comp, oAlloc>& rhs)
-			{
-				return (rhs < lhs);
-			}
-			template <class oKey, class U, class Comp, class oAlloc>
-	  		friend bool operator<= (const map<oKey, U, Comp, oAlloc>& lhs, const map<oKey, U, Comp, oAlloc>& rhs)
-			{
-				return !(lhs > rhs);
-			}
-			template <class oKey, class U, class Comp, class oAlloc>
-	  		friend bool operator>= (const map<oKey, U, Comp, oAlloc>& lhs, const map<oKey, U, Comp, oAlloc>& rhs)
-			{
-				return !(lhs < rhs);
-			}
-
-			/*		Relational Operators */
 
 			//void printtree()
 			//{
 			//	_tree.printTree();
 			//}
 	};
+
+			/*		Relational Operators		*/
+
+			template <class oKey, class U, class Comp, class oAlloc>
+	  		bool operator== (const map<oKey, U, Comp, oAlloc>& lhs, const map<oKey, U, Comp, oAlloc>& rhs)
+			{
+				if (lhs.size() != rhs.size())
+				  	return false;
+				return ft::equal(lhs.begin(), lhs.end(), rhs.begin());
+			}
+			template <class oKey, class U, class Comp, class oAlloc>
+	  		bool operator!= (const map<oKey, U, Comp, oAlloc>& lhs, const map<oKey, U, Comp, oAlloc>& rhs)
+			{
+				return !(operator==(lhs, rhs));
+			}
+			template <class oKey, class U, class Comp, class oAlloc>
+	  		bool operator< (const map<oKey, U, Comp, oAlloc>& lhs, const map<oKey, U, Comp, oAlloc>& rhs)
+			{
+				return ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+			}
+			template <class oKey, class U, class Comp, class oAlloc>
+	  		bool operator> (const map<oKey, U, Comp, oAlloc>& lhs, const map<oKey, U, Comp, oAlloc>& rhs)
+			{
+				return (rhs < lhs);
+			}
+			template <class oKey, class U, class Comp, class oAlloc>
+	  		bool operator<= (const map<oKey, U, Comp, oAlloc>& lhs, const map<oKey, U, Comp, oAlloc>& rhs)
+			{
+				return !(lhs > rhs);
+			}
+			template <class oKey, class U, class Comp, class oAlloc>
+	  		bool operator>= (const map<oKey, U, Comp, oAlloc>& lhs, const map<oKey, U, Comp, oAlloc>& rhs)
+			{
+				return !(lhs < rhs);
+			}
+
+			/*		Relational Operators */
+
+
 	template <class Key, class T, class Compare, class Alloc>
 	void swap (map<Key,T,Compare,Alloc>& x, map<Key,T,Compare,Alloc>& y)
 	{

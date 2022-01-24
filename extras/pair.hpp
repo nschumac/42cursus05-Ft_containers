@@ -34,37 +34,38 @@ namespace ft
 				return *this;
 			}
 
+	};
+
 			template <class first, class second>
-			friend bool operator== (const pair<first, second>& lhs, const pair<first, second>& rhs)
+			bool operator== (const ft::pair<first, second>& lhs, const ft::pair<first, second>& rhs)
 			{
 				return (lhs.first == rhs.first && lhs.second == rhs.second);
 			}
 			template <class first, class second>
-			friend bool operator!= (const pair<first, second>& lhs, const pair<first, second>& rhs)
+			bool operator!= (const ft::pair<first, second>& lhs, const ft::pair<first, second>& rhs)
 			{
 				return !(lhs == rhs);
 			}
 			template <class first, class second>
-			friend bool operator< (const pair<first, second>& lhs, const pair<first, second>& rhs)
+			bool operator< (const ft::pair<first, second>& lhs, const ft::pair<first, second>& rhs)
 			{
 				return lhs.first<rhs.first || (!(rhs.first<lhs.first) && lhs.second<rhs.second);
 			}
 			template <class first, class second>
-			friend bool operator<= (const pair<first, second>& lhs, const pair<first, second>& rhs)
+			bool operator<= (const ft::pair<first, second>& lhs, const ft::pair<first, second>& rhs)
 			{
 				return !(rhs<lhs);
 			}
 			template <class first, class second>
-			friend bool operator> (const pair<first, second>& lhs, const pair<first, second>& rhs)
+			bool operator> (const ft::pair<first, second>& lhs, const ft::pair<first, second>& rhs)
 			{
 				return rhs<lhs;
 			}
 			template <class first, class second>
-			friend bool operator>= (const pair<first, second>& lhs, const pair<first, second>& rhs)
+			bool operator>= (const ft::pair<first, second>& lhs, const ft::pair<first, second>& rhs)
 			{
 				return !(lhs<rhs);
 			}
-	};
 
 	template <class T1, class T2>
 	ft::pair<T1, T2> make_pair(T1 x1, T2 x2)

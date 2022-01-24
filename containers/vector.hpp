@@ -336,46 +336,45 @@ namespace ft
 
 			/*		Modifier-Functions			*/
 
+
+	};
+
 			/*		Relational Operators		*/
 
 			template <class U, class Alloc>
-	  		friend bool operator== (const vector<U,Alloc>& lhs, const vector<U,Alloc>& rhs)
+	  		bool operator== (const vector<U,Alloc>& lhs, const vector<U,Alloc>& rhs)
 			{
 				if (lhs.size() != rhs.size())
 				  	return false;
-				for (const_iterator first = lhs.begin(), second = rhs.begin(); first != lhs.end(); first++, second++)
-					if (*first != *second)
-						return false;
-				return true;
+				return ft::equal(lhs.begin(), lhs.end(), rhs.begin());
 			}
 			template <class U, class Alloc>
-	  		friend bool operator!= (const vector<U,Alloc>& lhs, const vector<U,Alloc>& rhs)
+	  		bool operator!= (const vector<U,Alloc>& lhs, const vector<U,Alloc>& rhs)
 			{
 				return !(operator==(lhs, rhs));
 			}
 			template <class U, class Alloc>
-	  		friend bool operator< (const vector<U,Alloc>& lhs, const vector<U,Alloc>& rhs)
+	  		bool operator< (const vector<U,Alloc>& lhs, const vector<U,Alloc>& rhs)
 			{
 				return ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
 			}
 			template <class U, class Alloc>
-	  		friend bool operator> (const vector<U,Alloc>& lhs, const vector<U,Alloc>& rhs)
+	  		bool operator> (const vector<U,Alloc>& lhs, const vector<U,Alloc>& rhs)
 			{
 				return (rhs < lhs);
 			}
 			template <class U, class Alloc>
-	  		friend bool operator<= (const vector<U,Alloc>& lhs, const vector<U,Alloc>& rhs)
+	  		bool operator<= (const vector<U,Alloc>& lhs, const vector<U,Alloc>& rhs)
 			{
 				return !(lhs > rhs);
 			}
 			template <class U, class Alloc>
-	  		friend bool operator>= (const vector<U,Alloc>& lhs, const vector<U,Alloc>& rhs)
+	  		bool operator>= (const vector<U,Alloc>& lhs, const vector<U,Alloc>& rhs)
 			{
 				return !(lhs < rhs);
 			}
 
 			/*		Relational Operators */
-	};
 
 	template < class T, class Alloc>
 	void swap(ft::vector<T, Alloc>& x, ft::vector<T, Alloc>& y)

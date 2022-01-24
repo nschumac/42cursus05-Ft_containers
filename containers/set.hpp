@@ -72,7 +72,7 @@ namespace ft
 			}
 
 			set (const set& x)
-				: _keycomp(x._keycomp), _size(x._size), _alloc(x._alloc), _tree(_keycomp), _val_comp(_keycomp)
+				: _keycomp(x._keycomp), _size(0), _alloc(x._alloc), _tree(_keycomp), _val_comp(_keycomp)
 			{
 				insert(x.begin(), x.end());
 			}
@@ -90,9 +90,15 @@ namespace ft
 			set &operator= (set const & in)
 			{
 				_tree.clear();
+				this->_size = in._size;
 				this->_keycomp = in._keycomp;
 				this->_alloc = in._alloc;
-				insert(in.begin(), in.end());
+				const_iterator beg = in.begin();
+				while (beg != in.end())
+				{
+					_tree.insert(*beg);
+					beg++;
+				}
 				return *this;
 			}
 

@@ -14,62 +14,75 @@ namespace ft
 			typedef Container							container_type;
 			typedef typename container_type::size_type	size_type;
 
-		private:
+		protected:
 
-			container_type	_ctnr;
+			container_type	c;
 
 		public:
 
-			explicit stack (const container_type& ctnr = container_type()) : _ctnr(ctnr) {}
+			explicit stack (const container_type& ctnr = container_type()) : c(ctnr) {}
 
-			bool empty () const { return _ctnr.empty(); }
+			bool empty () const { return c.empty(); }
 
-			size_type size () const { return _ctnr.size(); }
+			size_type size () const { return c.size(); }
 
-			value_type& top () { return _ctnr.back(); }
+			value_type& top () { return c.back(); }
 
-			const value_type& top () const { return _ctnr.back(); }
+			const value_type& top () const { return c.back(); }
 
-			void push (const value_type& val) { _ctnr.push_back(val); }
+			void push (const value_type& val) { c.push_back(val); }
 
-			void pop () { _ctnr.pop_back(); }
+			void pop () { c.pop_back(); }
 
-			template <class Tn, class ContainerN>
-			friend bool operator== (const ft::stack<Tn, ContainerN>& lhs, const ft::stack<Tn, ContainerN>& rhs)
-			{
-				return lhs._ctnr == rhs._ctnr;
-			}
-
-			template <class Tn, class ContainerN>
-			friend bool operator!= (const ft::stack<Tn, ContainerN>& lhs, const ft::stack<Tn, ContainerN>& rhs)
-			{
-				return lhs._ctnr != rhs._ctnr;
-			}
-			
-			template <class Tn, class ContainerN>
-			friend bool operator< (const ft::stack<Tn, ContainerN>& lhs, const ft::stack<Tn, ContainerN>& rhs)
-			{
-				return lhs._ctnr < rhs._ctnr;
-			}
-
-			template <class Tn, class ContainerN>
-			friend bool operator<= (const ft::stack<Tn, ContainerN>& lhs, const ft::stack<Tn, ContainerN>& rhs)
-			{
-				return lhs._ctnr <= rhs._ctnr;
-			}
-
-			template <class Tn, class ContainerN>
-			friend bool operator> (const ft::stack<Tn, ContainerN>& lhs, const ft::stack<Tn, ContainerN>& rhs)
-			{
-				return lhs._ctnr > rhs._ctnr;
-			}
-
-			template <class Tn, class ContainerN>
-			friend bool operator>= (const ft::stack<Tn, ContainerN>& lhs, const ft::stack<Tn, ContainerN>& rhs)
-			{
-				return lhs._ctnr >= rhs._ctnr;
-			}
+			template <class tn, class containern>
+			friend bool operator== (const stack<tn, containern>& lhs, const stack<tn, containern>& rhs);
+			template <class tn, class containern>
+			friend bool operator!= (const stack<tn, containern>& lhs, const stack<tn, containern>& rhs);
+			template <class tn, class containern>
+			friend bool operator< (const stack<tn, containern>& lhs, const stack<tn, containern>& rhs);
+			template <class tn, class containern>
+			friend bool operator<= (const stack<tn, containern>& lhs, const stack<tn, containern>& rhs);
+			template <class tn, class containern>
+			friend bool operator> (const stack<tn, containern>& lhs, const stack<tn, containern>& rhs);
+			template <class tn, class containern>
+			friend bool operator>= (const stack<tn, containern>& lhs, const stack<tn, containern>& rhs);
 	};
-}
 
-#endif
+		template <class Tn, class ContainerN>
+ 		bool operator== (const ft::stack<Tn, ContainerN>& lhs, const ft::stack<Tn, ContainerN>& rhs)
+  		{
+  			return lhs.c == rhs.c;
+		}
+  
+  		template <class Tn, class ContainerN>
+  		bool operator!= (const ft::stack<Tn, ContainerN>& lhs, const ft::stack<Tn, ContainerN>& rhs)
+  		{
+  			return lhs.c != rhs.c;
+  		}
+  		
+  		template <class Tn, class ContainerN>
+  		bool operator< (const ft::stack<Tn, ContainerN>& lhs, const ft::stack<Tn, ContainerN>& rhs)
+  		{
+  			return lhs.c < rhs.c;
+  		}
+  
+  		template <class Tn, class ContainerN>
+  		bool operator<= (const ft::stack<Tn, ContainerN>& lhs, const ft::stack<Tn, ContainerN>& rhs)
+  		{
+  			return lhs.c <= rhs.c;
+  		}
+  
+  		template <class Tn, class ContainerN>
+  		bool operator> (const ft::stack<Tn, ContainerN>& lhs, const ft::stack<Tn, ContainerN>& rhs)
+  		{
+  			return lhs.c > rhs.c;
+  		}
+  
+  		template <class Tn, class ContainerN>
+  		bool operator>= (const ft::stack<Tn, ContainerN>& lhs, const ft::stack<Tn, ContainerN>& rhs)
+  		{
+  			return lhs.c >= rhs.c;
+  		}
+  }
+  
+  #endif
