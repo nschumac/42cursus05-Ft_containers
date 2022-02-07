@@ -1,24 +1,24 @@
 # 42cursus05-Ft_containers
 ## Description:
-The goal of this project is to recode several standard library functions. We can use this as a base whilest we progress in the 42 programm.
+The goal of this Project is to recode some basic Container Types from the stl Library.
+Containers:
+    - Vector
+    - Map (Implemented using a Red-Black-Binary-Search-Tree)
+    - Stack (Defualt container used is my Vector)
+    - Set (Bonus, also implemented like Map with a RB-Tree)
 
 ## Usage:
 **MacOs Linux only**
-- `git clone https://github.com/nschumac/42cursus00-Libft`
-- run `make bonus` in cloned repository
-- include libft.h in your project.
-- build your executable with libft.a
+- `git clone https://github.com/nschumac/42cursus05-Ft_containers`
+- include the necessary Container in your Project `#include "./containers/vector.h"` or `#include <vector.h>`
+- compile your project using clang
 
 ## Subject:
-<object data="https://github.com/nschumac/42cursus00-Libft/blob/main/subject/libft-en.pdf" type="application/pdf" width="700px" height="700px">
-    <embed src="https://github.com/nschumac/42cursus00-Libft/blob/main/subject/libft-en.pdf">
-        <p><a href="https://github.com/nschumac/42cursus00-Libft/blob/main/subject/libft-en.pdf">libft subject</a></p>
-    </embed>
-</object>
+[Subject](https://google.com)
 
 ## Result:
 - Status: <span style="color:green">Completed</span>
-- Result: <span style="color:green">115%</span>
+- Result: <span style="color:green">125%</span>
 
 ## Contact:
 - 42-slack: nschumac
